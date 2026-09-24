@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="payment_form" inherit_id="payment.form">
+        <xpath expr="." position="inside">
+            <!-- Only when XPay is actually offered on this form: the SDK
+                 has no reason to load on a page where the shopper cannot
+                 choose it. -->
+            <t t-if="providers_sudo.filtered(lambda p: p.code == 'xpay')"
+               t-call="xpay_payment.sdk_assets"
+            />
+        </xpath>
+    </template>
+
+</odoo>

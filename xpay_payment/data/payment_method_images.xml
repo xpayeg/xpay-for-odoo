@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Brand artwork on payment methods Odoo already ships, applied by a
+    function call rather than a <record>: Odoo never rewrites another
+    module's noupdate record from a data file during an upgrade, and its
+    own payment methods are noupdate. Not noupdate here, so the call runs
+    on install and on every upgrade of this module. Only ValU: the source
+    card artwork is a 5:1 strip of three network logos, which Odoo's
+    45x30 icon slot would shrink to an unreadable ten pixels, so Card
+    keeps Odoo's own badge.
+-->
+<odoo>
+    <function model="payment.method" name="_xpay_apply_brand_images"/>
+</odoo>

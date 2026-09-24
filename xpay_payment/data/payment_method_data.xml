@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Odoo 19 does not ship payment.method records for fawry or instapay
+        (unlike card/aman/valu/sympl/tabby/tamara/mobile_wallet_eg/
+        samsung_pay/bank_transfer, which it does). image is a required
+        field on payment.method: Fawry uses the brand mark shipped at
+        static/src/img/fawry.png; no InstaPay artwork exists anywhere in
+        the repository, so it keeps a 1x1 transparent PNG placeholder
+        rather than a missing image.
+    -->
+
+    <record id="payment_method_fawry" model="payment.method">
+        <field name="name">Fawry</field>
+        <field name="code">fawry</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image" type="base64" file="xpay_payment/static/src/img/fawry.png"/>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_manual_capture">none</field>
+        <field name="support_refund">partial</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_instapay" model="payment.method">
+        <field name="name">InstaPay</field>
+        <field name="code">instapay</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_manual_capture">none</field>
+        <field name="support_refund">partial</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+</odoo>

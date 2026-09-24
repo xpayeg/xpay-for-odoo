@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        A fresh payment.provider record: XPay is not an Odoo-shipped
+        provider, so unlike Stripe there is no pre-declared
+        payment.payment_provider_xpay stub in the base payment module to
+        update. The logo is the brand's "short version squared" mark; the
+        same PNG is the module icon (static/description/icon.png) and
+        Odoo scales it to image_128 on write.
+    -->
+
+    <record id="payment_provider_xpay" model="payment.provider">
+        <field name="name">XPay</field>
+        <field name="code">xpay</field>
+        <field name="inline_form_view_id" ref="inline_form"/>
+        <field name="state">disabled</field>
+        <field name="image_128" type="base64" file="xpay_payment/static/description/icon.png"/>
+        <field name="company_id" ref="base.main_company"/>
+        <field
+            name="payment_method_ids"
+            eval="[
+                Command.set([
+                    ref('payment.payment_method_card'),
+                    ref('payment.payment_method_aman'),
+                    ref('payment.payment_method_valu'),
+                    ref('payment.payment_method_sympl'),
+                    ref('payment.payment_method_tabby'),
+                    ref('payment.payment_method_tamara'),
+                    ref('payment.payment_method_mobile_wallet_eg'),
+                    ref('payment.payment_method_samsung_pay'),
+                    ref('payment.payment_method_bank_transfer'),
+                    ref('payment_method_fawry'),
+                    ref('payment_method_instapay'),
+                ])
+            ]"
+        />
+    </record>
+</odoo>

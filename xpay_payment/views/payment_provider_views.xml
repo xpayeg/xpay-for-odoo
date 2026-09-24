@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        The Stripe shape: one primary button while nothing is connected,
+        then a status line, a webhook line, and the maintenance buttons.
+        Keys are never shown; Connect is the only credential path.
+    -->
+    <record id="payment_provider_form" model="ir.ui.view">
+        <field name="name">XPay Provider Form</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <group name="provider_credentials" position="before">
+                <group name="xpay_connect" groups="base.group_system" invisible="code != 'xpay'">
+                    <field name="xpay_is_connected" invisible="1"/>
+                    <field name="xpay_plane" invisible="1"/>
+                    <field name="xpay_setup_incomplete" invisible="1"/>
+                    <div
+                        colspan="2"
+                        name="xpay_connect_error_alert"
+                        class="alert alert-danger"
+                        role="alert"
+                        invisible="not xpay_connect_error"
+                    >
+                        <field name="xpay_connect_error" nolabel="1"/>
+                    </div>
+                    <div
+                        colspan="2"
+                        name="xpay_setup_incomplete_alert"
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not xpay_setup_incomplete"
+                    >
+                        <div class="mb-2">
+                            XPay reconnected with a new key, but setup did not finish while
+                            <field name="xpay_setup_incomplete_step_label" nolabel="1"/>. Shoppers
+                            cannot pay through XPay until this is complete.
+                        </div>
+                        <button
+                            string="Complete setup"
+                            type="object"
+                            name="action_xpay_complete_setup"
+                            class="btn-primary"
+                        />
+                    </div>
+                    <div colspan="2" name="xpay_connect_start" invisible="xpay_is_connected">
+                        <button
+                            string="Connect with XPay"
+                            type="object"
+                            name="action_xpay_connect"
+                            class="btn-primary"
+                        />
+                        <p class="text-muted mt-2 mb-0">
+                            XPay opens its own sign-in page. No key is typed here.
+                        </p>
+                    </div>
+                    <field
+                        name="xpay_connection_status"
+                        string="Connection"
+                        readonly="1"
+                        invisible="not xpay_is_connected"
+                    />
+                    <field
+                        name="xpay_webhook_status"
+                        string="Webhook"
+                        readonly="1"
+                        invisible="not xpay_is_connected"
+                    />
+                    <div colspan="2" name="xpay_connect_actions" invisible="not xpay_is_connected">
+                        <button
+                            string="Go live"
+                            type="object"
+                            name="action_xpay_go_live"
+                            class="btn-primary"
+                            invisible="xpay_plane != 'test' or xpay_setup_incomplete"
+                            help="Connect your live XPay account. It replaces the test connection and enables XPay for shoppers."
+                        />
+                        <button
+                            string="Switch to a test account"
+                            type="object"
+                            name="action_xpay_connect"
+                            class="btn-secondary"
+                            invisible="xpay_plane != 'live' or xpay_setup_incomplete"
+                        />
+                        <button
+                            string="Refresh account"
+                            type="object"
+                            name="action_xpay_refresh_account"
+                            class="btn-secondary"
+                        />
+                        <button
+                            string="Reconfigure webhook"
+                            type="object"
+                            name="action_xpay_reconfigure_webhook"
+                            class="btn-secondary"
+                            invisible="xpay_setup_incomplete"
+                        />
+                        <button
+                            string="Disconnect"
+                            type="object"
+                            name="action_xpay_disconnect"
+                            class="btn-secondary"
+                            confirm="Disconnect this store from XPay? The webhook is removed and XPay is switched off until you connect again."
+                        />
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+
+</odoo>
