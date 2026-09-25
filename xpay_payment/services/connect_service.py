@@ -278,7 +278,7 @@ def _provision(provider, plane, result):
         ) from exc
 
     previous_key = previous["xpay_restricted_key"]
-    if previous_endpoint_id and previous_key and previous_key != result.restricted_key:
+    if previous_endpoint_id and previous_key:
         # A same-plane exchange already retired `previous_key` at the
         # platform atomically with issuing the new one, so a client built
         # from it cannot authenticate the delete; the new key reaches the

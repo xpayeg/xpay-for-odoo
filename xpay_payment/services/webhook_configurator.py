@@ -227,15 +227,9 @@ def _list_own_endpoints(client, url):
 
 
 def _urls_match(a, b):
-    """Scheme-blind URL comparison: an http->https migration must still
-    recognize its own endpoint."""
+    """Comparison for URLs the module itself built from an https-only base."""
 
     def strip(value):
-        value = (value or "").strip().lower()
-        for scheme in ("https://", "http://"):
-            if value.startswith(scheme):
-                value = value[len(scheme) :]
-                break
-        return value.rstrip("/")
+        return (value or "").strip().lower().rstrip("/")
 
     return strip(a) == strip(b)

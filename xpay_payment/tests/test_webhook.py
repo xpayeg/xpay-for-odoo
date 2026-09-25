@@ -151,6 +151,40 @@ class TestWebhook(XPayCommon, PaymentHttpCommon):
         self.assertEqual(tx.provider_reference, "pi_1")
         self.assertEqual(tx.xpay_charge_id, "ch_1")
 
+    def test_paid_session_with_a_different_amount_sets_error_and_does_not_mark_done(self):
+        tx = self._tx()
+        event = self.make_event(
+            events.CHECKOUT_SESSION_COMPLETED,
+            self.make_session(
+                session_id="cs_1",
+                status="complete",
+                payment_status="paid",
+                amount_subtotal=75100,
+            ),
+        )
+        response = self._post(event)
+        self.assertEqual(response.status_code, 200)
+        tx.invalidate_recordset()
+        self.assertEqual(tx.state, "error")
+        self.assertFalse(tx.provider_reference)
+
+    def test_paid_session_in_a_different_currency_sets_error_and_does_not_mark_done(self):
+        tx = self._tx()
+        event = self.make_event(
+            events.CHECKOUT_SESSION_COMPLETED,
+            self.make_session(
+                session_id="cs_1",
+                status="complete",
+                payment_status="paid",
+                currency="USD",
+            ),
+        )
+        response = self._post(event)
+        self.assertEqual(response.status_code, 200)
+        tx.invalidate_recordset()
+        self.assertEqual(tx.state, "error")
+        self.assertFalse(tx.provider_reference)
+
     def test_completed_unpaid_ends_pending(self):
         tx = self._tx()
         event = self.make_event(

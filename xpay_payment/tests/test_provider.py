@@ -36,7 +36,6 @@ class TestProvider(XPayCommon):
         self.assertEqual(values["minor_amount"], 75000)
         self.assertEqual(values["currency"], "EGP")
         self.assertEqual(values["mode"], "payment")
-        self.assertEqual(values["sdk_url"], hosts.SDK_URL)
 
     def test_sdk_assets_template_script_src_matches_the_host_registry(self):
         # payment_xpay_templates.xml cannot reference a Python constant, so

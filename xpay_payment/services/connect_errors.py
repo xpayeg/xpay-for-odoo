@@ -50,7 +50,7 @@ def describe_incomplete_step(step):
         STEP_ACCOUNT: _("reading your account"),
         STEP_PERMISSIONS: _("checking permissions"),
         STEP_WEBHOOK: _("setting up the webhook"),
-    }.get(step) or _("an earlier step")
+    }[step]
 
 
 def describe_authorization_error(code, description=None):

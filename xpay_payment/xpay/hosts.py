@@ -15,8 +15,6 @@ SDK_URL = "https://checkout.xpay.app/v1/sdk.js"
 
 ALLOWED_HOSTS = ("checkout.xpay.app", "api.xpay.app", "xpay.app")
 
-_LOCAL_HOSTS = ("localhost", "127.0.0.1", "::1")
-
 
 def oauth_base(api_base: str) -> str:
     """The OAuth issuer, derived from the API base so the two can never point
@@ -24,7 +22,7 @@ def oauth_base(api_base: str) -> str:
     return api_base.rstrip("/") + "/api/auth"
 
 
-def is_allowed_xpay_url(url: str, *, allow_insecure_localhost: bool = False) -> bool:
+def is_allowed_xpay_url(url: str) -> bool:
     """True when a browser may be sent to `url`.
 
     HTTPS only, host is one of `ALLOWED_HOSTS` or a subdomain of one.
@@ -32,10 +30,6 @@ def is_allowed_xpay_url(url: str, *, allow_insecure_localhost: bool = False) -> 
     trap: some parsers read ``https://evil.com\\@xpay.app/`` as host
     ``xpay.app``, but a browser (WHATWG treats ``\\`` as ``/``) navigates to
     ``evil.com``. Neither ever appears in a legitimate XPay URL.
-
-    `allow_insecure_localhost` is a dev-only escape hatch for a local API
-    base override; it must never be set from anything but a deploy-time
-    configuration flag.
     """
     if "\\" in url:
         return False
@@ -48,9 +42,6 @@ def is_allowed_xpay_url(url: str, *, allow_insecure_localhost: bool = False) -> 
     if not host:
         return False
     scheme = parts.scheme.lower()
-
-    if allow_insecure_localhost and host in _LOCAL_HOSTS:
-        return scheme in ("https", "http")
 
     if scheme != "https":
         return False

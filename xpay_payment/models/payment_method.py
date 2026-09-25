@@ -3,9 +3,12 @@ import base64
 from odoo import api, models
 from odoo.tools import file_open
 
-# Brand artwork for payment methods Odoo ships with its own, older picture.
+# Brand artwork for payment methods Odoo ships with its own, older picture,
+# and for this module's own methods, so their creation-time image survives
+# a later change to the shipped file.
 _BRAND_IMAGES = {
     "payment.payment_method_valu": "xpay_payment/static/src/img/valu.png",
+    "xpay_payment.payment_method_fawry": "xpay_payment/static/src/img/fawry.png",
 }
 
 

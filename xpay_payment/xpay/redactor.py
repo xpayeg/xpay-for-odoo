@@ -19,6 +19,7 @@ SECRET_KEYS = frozenset(
         "whsec",
         "restricted_key",
         "xpay_restricted_key",
+        "xpay_webhook_secret",
         "code_verifier",
         "code_challenge",
         "authorization",

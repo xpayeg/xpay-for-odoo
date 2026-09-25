@@ -351,7 +351,6 @@ class PaymentProvider(models.Model):
         return json.dumps(
             {
                 "publishable_key": self.xpay_publishable_key or "",
-                "sdk_url": hosts.SDK_URL,
                 "mode": "payment",
                 "minor_amount": minor_amount,
                 "currency": currency_code,
@@ -484,8 +483,10 @@ class PaymentProvider(models.Model):
         so the create is never a replay of the endpoint about to be
         decommissioned. Rate-limited to once per 60 s: the cooldown stamp
         is set BEFORE any work runs, so a second click inside the window
-        is refused whatever the first attempt's outcome."""
+        is refused whatever the first attempt's outcome. An overlapping run
+        is refused by the provider's own row lock."""
         self.ensure_one()
+        connect_service._lock_provider(self)
         last = self._xpay_snapshot_datetime("webhook_reconfigured_at")
         now = fields.Datetime.now()
         if last and now - last < _WEBHOOK_RECONFIGURE_COOLDOWN:

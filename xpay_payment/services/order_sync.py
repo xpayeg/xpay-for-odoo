@@ -8,7 +8,7 @@ in one place.
 import psycopg2
 from odoo import _
 
-from ..xpay import events, lifecycle, money
+from ..xpay import lifecycle, money
 from . import escalation
 from .logging import get_logger, log
 
@@ -227,19 +227,6 @@ def _apply_refund_update(tx, payment_data):
     """Map a refund/charge webhook payload's refund status onto the child
     (refund) transaction."""
     refund = payment_data.get("refund")
-    if refund is None:
-        # `charge.refunded` carries every refund of the charge, newest first.
-        # This child owns exactly one of them: the id it already stores.
-        # Only a child with no stored id yet may take the newest (an external
-        # identifier must match the one stored on the transaction).
-        refunds = [
-            r for r in events.charge_refunds(payment_data.get("charge")) if isinstance(r, dict)
-        ]
-        stored_id = tx.provider_reference
-        if stored_id:
-            refund = next((r for r in refunds if r.get("id") == stored_id), None)
-        else:
-            refund = refunds[0] if refunds else None
     if not isinstance(refund, dict):
         return
 

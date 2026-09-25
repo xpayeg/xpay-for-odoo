@@ -124,8 +124,10 @@ patch(PaymentForm.prototype, {
         if (!window.XPay) {
             // The SDK script tag is injected by the inline-form template; its absence here
             // means it failed to load (network, ad blocker, CSP), not a form input problem.
+            // No _disableButton() here: the host re-enables the button right after this
+            // method returns, whatever it did, so the call would read as a guarantee it
+            // is not.
             this._displayErrorDialog(_t("Cannot display the payment form"), "");
-            this._disableButton();
             return;
         }
 
@@ -201,7 +203,12 @@ patch(PaymentForm.prototype, {
 
         const entry = this.xpayElements[paymentOptionId];
         if (!entry) {
-            await super._initiatePaymentFlow(...arguments);
+            // No element was ever mounted for this option (it failed to load, or the
+            // shopper never opened the inline form): delegating to the host here would
+            // create a transaction, and through it an XPay session, for a form the
+            // shopper cannot fill.
+            this._displayErrorDialog(_t("Cannot display the payment form"), "");
+            this._enableButton();
             return;
         }
 

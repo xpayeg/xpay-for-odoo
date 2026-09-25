@@ -5,7 +5,7 @@ online.
 
 ## Requirements
 
-- Odoo 19 Community or Enterprise, self-hosted or on Odoo.sh. Odoo Online does not allow
+- Odoo 18 or 19, Community or Enterprise, self-hosted or on Odoo.sh. Odoo Online does not allow
   third-party modules.
 - An XPay merchant account.
 - A public HTTPS address for the site. XPay sends payment confirmations to it, and the module

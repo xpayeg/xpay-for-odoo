@@ -718,10 +718,11 @@ class TestRefund(XPayCommon, PaymentHttpCommon):
                 self.make_refund(refund_id="re_old", status="SUCCEEDED", amount=10000),
             ],
         )
-        refund_tx._process(
-            "xpay", {"event_type": events.CHARGE_REFUNDED, "charge": charge, "source": "webhook"}
-        )
+        event = self.make_event(events.CHARGE_REFUNDED, charge)
+        response = self._post_webhook(event)
 
+        self.assertEqual(response.status_code, 200)
+        refund_tx.invalidate_recordset()
         self.assertEqual(refund_tx.state, "done")
         self.assertEqual(refund_tx.provider_reference, "re_old")
 
@@ -734,10 +735,11 @@ class TestRefund(XPayCommon, PaymentHttpCommon):
         charge = self.make_charge(
             charge_id="ch_1", refunds=[self.make_refund(refund_id="re_new", status="FAILED")]
         )
-        refund_tx._process(
-            "xpay", {"event_type": events.CHARGE_REFUNDED, "charge": charge, "source": "webhook"}
-        )
+        event = self.make_event(events.CHARGE_REFUNDED, charge)
+        response = self._post_webhook(event)
 
+        self.assertEqual(response.status_code, 200)
+        refund_tx.invalidate_recordset()
         self.assertEqual(refund_tx.state, "pending")
         self.assertEqual(refund_tx.provider_reference, "re_old")
 
@@ -749,12 +751,9 @@ class TestRefund(XPayCommon, PaymentHttpCommon):
         self.assertEqual(refund_tx.state, "error")
 
         # An amount that does not match what this module actually sent.
-        charge = self.make_charge(
-            charge_id="ch_1",
-            refunds=[self.make_refund(refund_id="re_1", status="SUCCEEDED", amount=99000)],
-        )
+        refund = self.make_refund(refund_id="re_1", status="SUCCEEDED", amount=99000)
         refund_tx._process(
-            "xpay", {"event_type": events.CHARGE_REFUNDED, "charge": charge, "source": "webhook"}
+            "xpay", {"event_type": events.CHARGE_REFUNDED, "refund": refund, "source": "webhook"}
         )
 
         self.assertEqual(refund_tx.state, "error")
@@ -767,12 +766,9 @@ class TestRefund(XPayCommon, PaymentHttpCommon):
         refund_tx = tx._refund(amount_to_refund=100.0)
         self.assertEqual(refund_tx.state, "error")
 
-        charge = self.make_charge(
-            charge_id="ch_1",
-            refunds=[self.make_refund(refund_id="re_1", status="SUCCEEDED", amount=10000)],
-        )
+        refund = self.make_refund(refund_id="re_1", status="SUCCEEDED", amount=10000)
         refund_tx._process(
-            "xpay", {"event_type": events.CHARGE_REFUNDED, "charge": charge, "source": "webhook"}
+            "xpay", {"event_type": events.CHARGE_REFUNDED, "refund": refund, "source": "webhook"}
         )
 
         self.assertEqual(refund_tx.state, "done")
@@ -788,16 +784,11 @@ class TestRefund(XPayCommon, PaymentHttpCommon):
         # Same refund id as the child already stores, but a chargeId that
         # names a different charge than the one this refund's source ever
         # recorded: not a report about this payment, whatever matched it.
-        charge = self.make_charge(
-            charge_id="ch_1",
-            refunds=[
-                self.make_refund(
-                    refund_id="re_1", status="SUCCEEDED", amount=10000, charge_id="ch_foreign"
-                )
-            ],
+        refund = self.make_refund(
+            refund_id="re_1", status="SUCCEEDED", amount=10000, charge_id="ch_foreign"
         )
         refund_tx._process(
-            "xpay", {"event_type": events.CHARGE_REFUNDED, "charge": charge, "source": "webhook"}
+            "xpay", {"event_type": events.CHARGE_REFUNDED, "refund": refund, "source": "webhook"}
         )
 
         self.assertEqual(refund_tx.state, "pending")

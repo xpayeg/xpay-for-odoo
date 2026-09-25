@@ -1,7 +1,7 @@
 {
-    "name": "XPay",
+    "name": "XPay Payment Provider",
     "summary": "Accept payments with XPay",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Payment Providers",
     "author": "XPay",
     "website": "https://xpay.app",

@@ -1,3 +1,4 @@
+from odoo import api
 from odoo.exceptions import UserError
 from odoo.fields import Datetime
 from odoo.tests import tagged
@@ -21,6 +22,39 @@ class TestWebhookConfigurator(XPayCommon):
         )
         with self.assertRaises(UserError):
             self.provider.action_xpay_reconfigure_webhook()
+
+    def test_action_reconfigure_webhook_is_refused_while_another_connection_holds_the_row(
+        self,
+    ):
+        # Same contention shape as test_lock_provider_busy_raises in
+        # test_connect.py: a fresh row, committed through its own connection,
+        # carries no lock from setUpClass's own transaction, so a second
+        # connection can genuinely hold FOR UPDATE on it.
+        with self.registry.cursor() as cr1:
+            env1 = api.Environment(cr1, api.SUPERUSER_ID, {})
+            fixture_provider = env1["payment.provider"].create({"name": "Lock test provider"})
+            provider_id = fixture_provider.id
+        # cr1 committed the fixture on clean `with` exit.
+
+        cr2 = self.registry.cursor()
+        try:
+            cr2.execute("SELECT id FROM payment_provider WHERE id = %s FOR UPDATE", [provider_id])
+
+            with self.registry.cursor() as cr3:
+                env3 = api.Environment(cr3, api.SUPERUSER_ID, {})
+                victim = env3["payment.provider"].browse(provider_id)
+                with self.assertRaises(UserError) as catcher:
+                    victim.action_xpay_reconfigure_webhook()
+                self.assertIn("already in progress", str(catcher.exception))
+        finally:
+            cr2.rollback()
+            cr2.close()
+            # The fixture provider was committed through cr1, its own
+            # connection, independently of this test's transaction --
+            # nothing rolls it back on its own, so it must be deleted
+            # explicitly or it leaks into the shared database on every run.
+            with self.registry.cursor() as cr4:
+                cr4.execute("DELETE FROM payment_provider WHERE id = %s", [provider_id])
 
     def test_action_reconfigure_webhook_creates_the_new_endpoint_before_deleting_the_old_one(self):
         # A reused op id would replay the platform's cached response for

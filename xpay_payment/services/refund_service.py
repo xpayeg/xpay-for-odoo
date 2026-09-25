@@ -204,10 +204,10 @@ def submit_refund(refund_tx):
             tx_reference=refund_tx.reference,
             code=exc.code,
         )
-        # ValidationError, not UserError: `_refund()` (payment/models/
-        # payment_transaction.py) only catches ValidationError around this
-        # call, turning it into a clean `_set_error` on the refund
-        # transaction instead of an uncaught exception.
+        # ValidationError, not UserError: the refund entry point catches
+        # ValidationError around this call and turns it into a clean
+        # `_set_error` on the refund transaction instead of an uncaught
+        # exception.
         if exc.code == Codes.RESOURCE_INVALID_STATE:
             raise ValidationError(
                 _(
@@ -216,8 +216,7 @@ def submit_refund(refund_tx):
                 )
             ) from exc
         # exc.message is text echoed from XPay's own API response — never a
-        # shopper-facing surface. The code and full message are already in
-        # the log line above.
+        # shopper-facing surface. The code is already in the log line above.
         raise ValidationError(
             _("XPay could not process this refund (%(code)s). Please try again.", code=exc.code)
         ) from exc

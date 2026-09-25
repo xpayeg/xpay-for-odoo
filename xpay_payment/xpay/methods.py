@@ -29,8 +29,6 @@ XPAY_METHODS: tuple[str, ...] = (
     "cash_on_delivery",
 )
 
-ONLINE_METHODS: tuple[str, ...] = tuple(m for m in XPAY_METHODS if m != "cash_on_delivery")
-
 # cash_on_delivery has no XPay-processed wire flow, so it carries no mapping
 # here — Odoo's own COD payment provider owns that method.
 TO_ODOO: dict[str, str] = {

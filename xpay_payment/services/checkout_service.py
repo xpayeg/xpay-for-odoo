@@ -33,32 +33,9 @@ def session_for(tx):
 
     _expire_sibling_sessions(tx)
 
-    old_session_id = None
-    if tx.xpay_session_id:
-        session = _fetch_stored_session(tx, provider)
-        if session is not None and session.get("status") == "open" and not session.get("isExpired"):
-            client_secret = session.get("clientSecret")
-            if client_secret:
-                return {
-                    "client_secret": client_secret,
-                    "session_id": tx.xpay_session_id,
-                    "return_url": _return_url(provider, tx, tx.xpay_session_id),
-                }
-        tx.xpay_session_attempt += 1
-        old_session_id = tx.xpay_session_id
-    else:
-        tx.xpay_session_attempt = 1
+    tx.xpay_session_attempt = 1
 
     session = _create_session(tx, provider)
-    if old_session_id:
-        # The SAME transaction is minting a replacement for its own
-        # expired/missing session: the old id moves into the superseded
-        # ledger BEFORE it is overwritten, so a late payment on it is still
-        # recognizable as this transaction's money (parked, not dropped as
-        # foreign) rather than judged foreign.
-        superseded = list(tx.xpay_superseded_session_ids or [])
-        superseded.append(old_session_id)
-        tx.xpay_superseded_session_ids = superseded[-10:]
     tx.xpay_session_id = session["id"]
 
     url = session.get("url")
@@ -70,38 +47,6 @@ def session_for(tx):
         "session_id": session["id"],
         "return_url": _return_url(provider, tx, session["id"]),
     }
-
-
-def _fetch_stored_session(tx, provider):
-    """The stored session, re-read server-side, or None when it is
-    genuinely gone. Only a 404/resource_missing falls through to minting a
-    fresh session — every other failure surfaces."""
-    client = provider._xpay_client()
-    try:
-        return client.get_checkout_session(tx.xpay_session_id, shopper_facing=True)
-    except XPayApiError as exc:
-        if exc.code == Codes.RESOURCE_MISSING or exc.http_status == 404:
-            log(
-                _logger,
-                "info",
-                "checkout.stored_session_missing",
-                tx_reference=tx.reference,
-                session_id=tx.xpay_session_id,
-            )
-            return None
-        log(
-            _logger,
-            "error",
-            "checkout.session_fetch_failed",
-            tx_reference=tx.reference,
-            code=exc.code,
-        )
-        raise UserError(
-            _(
-                "Could not reach XPay to check the payment session (%(code)s). Please try again.",
-                code=exc.code,
-            )
-        ) from exc
 
 
 def _create_session(tx, provider):
@@ -214,8 +159,8 @@ def _post_session(client, body, key, tx):
 
 def _shopper_safe(exc):
     """exc.message is text echoed from XPay's own API response — never a
-    shopper-facing surface. The code and full message are already in the
-    log line written by `_post_session`."""
+    shopper-facing surface. The code is already in the log line written by
+    `_post_session`."""
     return UserError(
         _("XPay could not start the payment (%(code)s). Please try again.", code=exc.code)
     )

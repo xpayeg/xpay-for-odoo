@@ -211,57 +211,12 @@ class TestCheckout(XPayCommon):
         self.assertEqual(len(transport.calls), 1)
         self.assertEqual(buyer._xpay_customer_id("test"), "cus_test_known")
 
-    def test_reuses_open_unexpired_session(self):
-        transport = self._use_transport()
-        transport.queue(200, self.make_session(session_id="cs_1"))
-        tx = self._create_transaction("direct")
-        tx._get_processing_values()
-
-        transport.queue(200, self.make_session(session_id="cs_1", status="open", is_expired=False))
-        values = tx._get_processing_values()
-
-        self.assertEqual(values["session_id"], "cs_1")
-        self.assertEqual(tx.xpay_session_attempt, 1)
-        # Only a GET was made on the second call: no new session created.
-        self.assertEqual(transport.last_call["method"], "GET")
-
-    def test_expired_stored_session_bumps_attempt_and_creates_a_new_one(self):
-        transport = self._use_transport()
-        transport.queue(200, self.make_session(session_id="cs_1"))
-        tx = self._create_transaction("direct")
-        tx._get_processing_values()
-
-        transport.queue(200, self.make_session(session_id="cs_1", is_expired=True))
-        transport.queue(200, self.make_session(session_id="cs_2"))
-        values = tx._get_processing_values()
-
-        self.assertEqual(values["session_id"], "cs_2")
-        tx.invalidate_recordset()
-        self.assertEqual(tx.xpay_session_attempt, 2)
-        create_call = transport.last_call
-        self.assertEqual(
-            create_call["headers"]["Idempotency-Key"],
-            idempotency.bind_to_body(
-                idempotency.session_key(tx.reference, 2), create_call["json_body"]
-            ),
-        )
-        # The old id moved to the superseded ledger before being
-        # overwritten, so a late payment on it is still recognizable as
-        # this same transaction's money.
-        self.assertEqual(tx.xpay_superseded_session_ids, ["cs_1"])
-        self.assertEqual(tx.xpay_session_id, "cs_2")
-
     def test_a_later_paid_webhook_for_the_own_superseded_session_parks(self):
         transport = self._use_transport()
-        transport.queue(200, self.make_session(session_id="cs_1"))
+        transport.queue(200, self.make_session(session_id="cs_2"))
         tx = self._create_transaction("direct")
         tx._get_processing_values()
-
-        transport.queue(200, self.make_session(session_id="cs_1", is_expired=True))
-        transport.queue(200, self.make_session(session_id="cs_2"))
-        tx._get_processing_values()
-        tx.invalidate_recordset()
-        self.assertEqual(tx.xpay_superseded_session_ids, ["cs_1"])
+        tx.xpay_superseded_session_ids = ["cs_1"]
 
         session = self.make_session(session_id="cs_1", status="complete", payment_status="paid")
         action = order_sync.apply_locked(
