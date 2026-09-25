@@ -1,8 +1,10 @@
 import json
+from unittest.mock import patch
 
 from odoo.addons.payment.tests.http_common import PaymentHttpCommon
 from odoo.tests import tagged
 
+from ..services import order_sync
 from ..xpay import events
 from .common import XPayCommon
 
@@ -272,6 +274,26 @@ class TestWebhook(XPayCommon, PaymentHttpCommon):
         self._post(event, secret="anything")
         self.assertTrue(self._health("webhook_last_failure_at"))
         self.assertTrue(self._health("webhook_last_failure_reason"))
+
+    def test_lock_busy_is_500_and_writes_no_health_failure(self):
+        # A busy row lock is another delivery of the same event racing this
+        # one; the platform's redelivery resolves it, so it must read as a
+        # retry, not a failing webhook.
+        self._tx()
+        event = self.make_event(
+            events.CHECKOUT_SESSION_COMPLETED,
+            self.make_session(session_id="cs_1", status="complete", payment_status="paid"),
+        )
+        with patch(
+            "odoo.addons.xpay_payment.services.order_sync.apply_locked",
+            side_effect=order_sync.OrderLockBusy("locked"),
+        ):
+            response = self._post(event)
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(json.loads(response.content)["error"], "order_lock_busy")
+        self.assertFalse(self._health("webhook_last_failure_at"))
+        self.assertFalse(self._health("webhook_last_failure_reason"))
+        self.assertFalse(self._health("webhook_last_success_at"))
 
     def test_health_fields_not_updated_on_404(self):
         event = self.make_event(
