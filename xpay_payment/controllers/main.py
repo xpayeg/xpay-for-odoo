@@ -151,7 +151,10 @@ class XPayMainController(http.Controller):
         try:
             tx._handle_notification_data("xpay", payment_data)
         except order_sync.OrderLockBusy:
-            self._record_health(provider, plane, success=False, reason=Codes.ORDER_LOCK_BUSY)
+            # A busy lock means another delivery of this same event is
+            # already applying it; the redelivery this 500 triggers is what
+            # resolves the race, so it is not a webhook failure to record.
+            log(_logger, "info", "webhook.lock_busy", plane=plane, event_type=event_type)
             return self._json(500, {"error": Codes.ORDER_LOCK_BUSY})
         except Exception:
             # Returning a response commits the request's transaction, so a
@@ -202,7 +205,9 @@ class XPayMainController(http.Controller):
         try:
             result = order_sync.mirror_external_refund(source_tx, refund, event_id)
         except order_sync.OrderLockBusy:
-            self._record_health(provider, plane, success=False, reason=Codes.ORDER_LOCK_BUSY)
+            # Same race as the main apply path: the platform's redelivery
+            # resolves it, so it must not count as a webhook failure.
+            log(_logger, "info", "webhook.lock_busy", plane=plane, event_id=event_id)
             return self._json(500, {"error": Codes.ORDER_LOCK_BUSY})
         except Exception:
             request.env.cr.rollback()
@@ -267,9 +272,16 @@ class XPayMainController(http.Controller):
                 # a partially applied event must be rolled back first: the
                 # 500 makes the platform redeliver it against a clean state,
                 # and every entry this loop already applied is idempotent to
-                # replay.
+                # replay. The race itself resolves on redelivery, so it must
+                # not count as a webhook failure.
                 request.env.cr.rollback()
-                self._record_health(provider, plane, success=False, reason=Codes.ORDER_LOCK_BUSY)
+                log(
+                    _logger,
+                    "info",
+                    "webhook.lock_busy",
+                    plane=plane,
+                    event_type=events.CHARGE_REFUNDED,
+                )
                 return self._json(500, {"error": Codes.ORDER_LOCK_BUSY})
             except Exception:
                 request.env.cr.rollback()
@@ -338,7 +350,9 @@ class XPayMainController(http.Controller):
         try:
             order_sync.note_declined(tx, intent, event_id)
         except order_sync.OrderLockBusy:
-            self._record_health(provider, plane, success=False, reason=Codes.ORDER_LOCK_BUSY)
+            # Same race as the main apply path: the platform's redelivery
+            # resolves it, so it must not count as a webhook failure.
+            log(_logger, "info", "webhook.lock_busy", plane=plane, event_id=event_id)
             return self._json(500, {"error": Codes.ORDER_LOCK_BUSY})
 
         self._record_health(provider, plane, success=True)
