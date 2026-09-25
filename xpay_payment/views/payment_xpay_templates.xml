@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="inline_form">
+        <div name="o_xpay_element_container"
+             t-att-data-xpay-inline-form-values="provider_sudo._xpay_inline_form_values(
+                amount, currency, pm_sudo.code, request.env.lang,
+             )"
+        />
+    </template>
+
+    <!-- Must equal xpay.hosts.SDK_URL; there is no way to reference a
+         Python constant from a QWeb data file, so this is pinned here and
+         checked by test_provider.py's SDK URL drift test. -->
+    <template id="sdk_assets">
+        <script type="text/javascript" src="https://checkout.xpay.app/v1/sdk.js"/>
+    </template>
+
+</odoo>

@@ -1,0 +1,83 @@
+<div style="font-family: Helvetica, Arial, sans-serif; color: #111318; max-width: 1280px; margin: 0 auto;">
+
+  <img src="banner.png" alt="XPay for Odoo" style="max-width: 100%; display: block; border-radius: 12px;"/>
+
+  <div style="padding: 40px 8px 8px 8px;">
+    <h1 style="font-size: 32px; margin: 0 0 8px 0;">XPay Payment Provider</h1>
+    <p style="font-size: 18px; color: #4a5164; margin: 0 0 36px 0;">Accept payments with XPay in Odoo: the eCommerce checkout, payment links, and invoices paid online.</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 36px;">
+      <tr>
+        <td style="width: 55%; vertical-align: top; padding-right: 32px;">
+          <h2 style="font-size: 24px; margin: 0 0 12px 0;">Connect in one click</h2>
+          <p style="font-size: 16px; color: #4a5164; line-height: 1.6;">
+            Click <strong>Connect with XPay</strong> and it opens XPay's own sign-in and consent page.
+            No API key is ever entered into Odoo, and the webhook that carries payment confirmations
+            is set up for you automatically. Your test and live connections are kept separate, so
+            trying the module never touches real payments. When you are ready, <strong>Go live</strong>
+            switches shoppers over to your live XPay account.
+          </p>
+        </td>
+        <td style="width: 45%; vertical-align: top;">
+          <img src="connect.png" alt="Connect, test, then go live" style="max-width: 100%; display: block; border-radius: 12px;"/>
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin-bottom: 36px;">
+      <h2 style="font-size: 24px; margin: 0 0 12px 0;">Payment methods and currencies</h2>
+      <p style="font-size: 16px; color: #4a5164; line-height: 1.6;">
+        The payment methods and currencies XPay offers at your checkout come straight from your XPay
+        account: cards in every currency your account accepts, and in EGP the local methods your
+        account has enabled, such as Fawry, ValU, InstaPay and mobile wallets. They are read when you
+        connect and again whenever you click <strong>Refresh account</strong>, so your Odoo checkout
+        matches what your XPay account supports.
+      </p>
+    </div>
+
+    <div style="margin-bottom: 36px;">
+      <h2 style="font-size: 24px; margin: 0 0 12px 0;">Orders confirmed by XPay</h2>
+      <p style="font-size: 16px; color: #4a5164; line-height: 1.6;">
+        Payment confirmations arrive as signed webhooks sent directly from XPay to your store. An
+        order is confirmed by the platform itself, not by whatever the shopper's browser reports on
+        its way back, so a paid order is confirmed even when the shopper closes the tab.
+      </p>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 36px;">
+      <tr>
+        <td style="width: 45%; vertical-align: top; padding-right: 32px;">
+          <img src="refunds.png" alt="Refund issued from Odoo and confirmed by XPay" style="max-width: 100%; display: block; border-radius: 12px;"/>
+        </td>
+        <td style="width: 55%; vertical-align: top;">
+          <h2 style="font-size: 24px; margin: 0 0 12px 0;">Refunds from Odoo</h2>
+          <p style="font-size: 16px; color: #4a5164; line-height: 1.6;">
+            Refund straight from the order or the invoice, for the full amount or part of it. XPay
+            confirms every refund back to Odoo, and a refund made from the XPay dashboard is copied
+            back to Odoo the same way. ValU payments are the one exception: they cannot be refunded
+            through XPay.
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin-bottom: 36px;">
+      <h2 style="font-size: 24px; margin: 0 0 12px 0;">Requirements</h2>
+      <ul style="font-size: 16px; color: #4a5164; line-height: 1.8; padding-left: 20px;">
+        <li>Odoo 18 or 19, Community or Enterprise, self-hosted or on Odoo.sh. Odoo Online does not allow third-party modules.</li>
+        <li>An XPay merchant account.</li>
+        <li>A public HTTPS address for the site.</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <h2 style="font-size: 24px; margin: 0 0 12px 0;">Support</h2>
+      <p style="font-size: 16px; color: #4a5164; line-height: 1.6;">
+        Contact XPay support through your merchant dashboard. The module's troubleshooting page ships
+        in its public repository at
+        <a href="https://github.com/xpayeg/xpay-for-odoo" style="color: #413df6;">github.com/xpayeg/xpay-for-odoo</a>.
+      </p>
+    </div>
+
+  </div>
+</div>

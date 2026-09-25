@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Odoo 18 does not ship payment.method records for fawry, instapay,
+        aman, valu, sympl, tabby, tamara or mobile_wallet_eg (unlike
+        card/samsung_pay/bank_transfer, which it does), so the module
+        defines all eight under its own ids. image is a required field
+        on payment.method: Fawry and ValU use the brand marks shipped at
+        static/src/img/fawry.png and static/src/img/valu.png; no artwork
+        exists anywhere in the repository for the other six, so they
+        keep the same 1x1 transparent PNG placeholder InstaPay uses
+        rather than a missing image. payment.method has no
+        support_manual_capture field on this series.
+    -->
+
+    <record id="payment_method_fawry" model="payment.method">
+        <field name="name">Fawry</field>
+        <field name="code">fawry</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image" type="base64" file="xpay_payment/static/src/img/fawry.png"/>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">partial</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_instapay" model="payment.method">
+        <field name="name">InstaPay</field>
+        <field name="code">instapay</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">partial</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_aman" model="payment.method">
+        <field name="name">Aman</field>
+        <field name="code">aman</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_valu" model="payment.method">
+        <field name="name">ValU</field>
+        <field name="code">valu</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image" type="base64" file="xpay_payment/static/src/img/valu.png"/>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_sympl" model="payment.method">
+        <field name="name">Sympl</field>
+        <field name="code">sympl</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+
+    <record id="payment_method_tabby" model="payment.method">
+        <field name="name">Tabby</field>
+        <field name="code">tabby</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.ae'), ref('base.sa')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.AED'), ref('base.SAR')])]"/>
+    </record>
+
+    <record id="payment_method_tamara" model="payment.method">
+        <field name="name">Tamara</field>
+        <field name="code">tamara</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.ae'), ref('base.sa')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.AED'), ref('base.SAR')])]"/>
+    </record>
+
+    <record id="payment_method_mobile_wallet_eg" model="payment.method">
+        <field name="name">Mobile Wallets Egypt</field>
+        <field name="code">mobile_wallet_eg</field>
+        <field name="sequence">1000</field>
+        <field name="active">False</field>
+        <field name="image">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</field>
+        <field name="support_tokenization">False</field>
+        <field name="support_express_checkout">False</field>
+        <field name="support_refund">none</field>
+        <field name="supported_country_ids" eval="[Command.set([ref('base.eg')])]"/>
+        <field name="supported_currency_ids" eval="[Command.set([ref('base.EGP')])]"/>
+    </record>
+</odoo>

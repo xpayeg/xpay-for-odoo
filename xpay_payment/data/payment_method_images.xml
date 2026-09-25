@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Brand artwork applied by a function call rather than left to the
+    <record> that creates the method: a noupdate record's fields are
+    only ever written once, at creation, so a later change to the
+    shipped image file would never reach an already-installed database
+    without this being called again. Not noupdate here, so the call
+    runs on install and on every upgrade of this module.
+-->
+<odoo>
+    <function model="payment.method" name="_xpay_apply_brand_images"/>
+</odoo>
